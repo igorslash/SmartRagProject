@@ -1,0 +1,23 @@
+# Используем официальный образ Python
+FROM python:3.11-slim
+
+# Устанавливаем рабочую директорию внутри контейнера
+WORKDIR /app
+
+# Копируем только requirements.txt, чтобы кэш Docker работал эффективно
+COPY requirements.txt .
+
+# Устанавливаем зависимости
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Копируем весь остальной код проекта
+COPY . .
+
+# Создаём папку для документов (чтобы не было ошибки при старте)
+RUN mkdir -p /app/docs
+
+# Открываем порты: 8000 для API, 6006 для Phoenix
+EXPOSE 8000 6006
+
+# Команда запуска (используем uvicorn напрямую, как принято в проде)
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
